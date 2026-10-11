@@ -1,0 +1,14 @@
+{
+  // Cloudflare Workers deploy config for the HotelierOS marketing site.
+  // "name" must match the Worker in the dashboard.
+  "name": "hotelier-website",
+  "compatibility_date": "2026-06-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  },
+  // Attaches the custom domain on deploy; Cloudflare creates the DNS record + SSL.
+  "routes": [
+    { "pattern": "hotelieros.tattvalabs.io", "custom_domain": true }
+  ]
+}
