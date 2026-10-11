@@ -5,7 +5,13 @@
 
 // Where the "Log in" / "Request access → already onboarded" buttons point.
 // This is the separate app subdomain (see README for the domain split).
-export const APP_LOGIN_URL = 'https://app.hotelieros.tattvalabs.io/login';
+// The app (hotelier_dash) shows its login screen at the root — there is no /login route.
+export const APP_LOGIN_URL = 'https://app.hotelieros.tattvalabs.io/';
+
+// Request Access form → emailed to you via Web3Forms (https://web3forms.com).
+// Get a free access key there by entering the inbox you want submissions sent to.
+// The key is safe to ship in client code: it can only send mail to that inbox.
+export const WEB3FORMS_ACCESS_KEY = '594a215b-a6fc-45c6-9424-f45769a8fe92';
 
 // Product wordmark shown in nav + footer (rendered as "Hotelier" + accented "OS").
 export const BRAND = { pre: 'Hotelier', accent: 'OS' } as const;

@@ -1,5 +1,5 @@
 ---
-import { APP_LOGIN_URL } from '../config';
+import { APP_LOGIN_URL, WEB3FORMS_ACCESS_KEY } from '../config';
 ---
 
 <section class="final" id="request">
@@ -7,13 +7,16 @@ import { APP_LOGIN_URL } from '../config';
     <div class="kicker">Get started</div>
     <h2>See it on your own numbers.</h2>
     <p>HotelierOS is onboarded property by property. Tell us about your hotel and we'll set up your workspace.</p>
-    <form class="req-form reveal" id="reqForm">
+    <form class="req-form reveal" id="reqForm" data-key={WEB3FORMS_ACCESS_KEY}>
+      <!-- Honeypot: hidden from people, bots tick it, Web3Forms drops those submissions. -->
+      <input type="checkbox" name="botcheck" class="req-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
       <div class="req-row">
         <input type="text" name="name" placeholder="Your name" required />
         <input type="text" name="hotel" placeholder="Hotel name" required />
       </div>
       <input type="email" name="email" placeholder="Work email" required />
       <button type="submit" class="btn btn-primary">Request access</button>
+      <div class="req-error" id="reqError" role="alert"></div>
     </form>
     <div class="req-done" id="reqDone">Thanks — we'll be in touch to set up your workspace.</div>
     <div class="or-login">Already onboarded? <a href={APP_LOGIN_URL}>Log in →</a></div>
@@ -21,13 +24,43 @@ import { APP_LOGIN_URL } from '../config';
 </section>
 
 <script>
-  // NOTE: this is a front-end-only stub. Wire the submit to your CRM / form
-  // endpoint (e.g. a Cloudflare Pages Function, Formspree, or your backend).
+  // Sends the form to Web3Forms, which emails it to the inbox tied to the access key.
   const form = document.getElementById('reqForm') as HTMLFormElement | null;
   const done = document.getElementById('reqDone');
-  form?.addEventListener('submit', (e) => {
+  const err = document.getElementById('reqError');
+
+  form?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    form.style.display = 'none';
-    if (done) done.style.display = 'block';
+    const btn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const data = Object.fromEntries(new FormData(form)) as Record<string, string>;
+    if (err) err.textContent = '';
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+
+    try {
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          access_key: form.dataset.key,
+          subject: `HotelierOS access request — ${data.hotel}`,
+          from_name: 'HotelierOS website',
+          replyto: data.email,
+          name: data.name,
+          hotel: data.hotel,
+          email: data.email,
+          botcheck: data.botcheck ?? '',
+        }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json.success) throw new Error(json.message || `HTTP ${res.status}`);
+      form.style.display = 'none';
+      if (done) done.style.display = 'block';
+    } catch (ex) {
+      console.error('Request access failed:', ex);
+      if (err) err.textContent = "Something went wrong sending your request. Please try again in a minute.";
+      btn.disabled = false;
+      btn.textContent = 'Request access';
+    }
   });
 </script>
