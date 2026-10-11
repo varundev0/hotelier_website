@@ -1,0 +1,114 @@
+---
+import { APP_LOGIN_URL } from '../config';
+const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+---
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow reveal">Revenue management for independent hotels</span>
+    <h1 class="reveal">Every night has a right price. See yours.</h1>
+    <p class="sub reveal">
+      HotelierOS reads your booking history and turns it into a live picture of
+      demand, channels, and the rate you should be charging — grounded in your
+      own data, not guesswork.
+    </p>
+    <div class="hero-cta reveal">
+      <a href="#request" class="btn btn-primary btn-lg">Request access</a>
+      <a href={APP_LOGIN_URL} class="btn btn-ghost btn-lg">Log in</a>
+    </div>
+    <p class="hero-note reveal">Built for small-to-midsize hotels. Reported in ₹.</p>
+
+    <!-- Heatmap hero visual -->
+    <div class="heat-card reveal" id="heatCard">
+      <div class="heat-head">
+        <div class="heat-title">
+          A year of demand, at a glance
+          <small>occupancy by day · illustrative data</small>
+        </div>
+        <div class="heat-legend">
+          <span>Quiet</span>
+          <span class="legend-scale">
+            <i style="background:#10B981"></i>
+            <i style="background:#84cc16"></i>
+            <i style="background:#F59E0B"></i>
+            <i style="background:#f97316"></i>
+            <i style="background:#EF4444"></i>
+          </span>
+          <span>Peak</span>
+        </div>
+      </div>
+      <div class="heatmap" id="heatmap"></div>
+      <div class="heat-months">
+        {months.map((m) => <span>{m}</span>)}
+      </div>
+    </div>
+
+    <!-- Count-up stat strip -->
+    <div class="statstrip reveal" id="statStrip">
+      <div class="stat">
+        <div class="n"><span data-count="47" data-suffix="%">0%</span></div>
+        <div class="l">of revenue from OTAs — visible at last</div>
+      </div>
+      <div class="stat">
+        <div class="n">₹<span data-count="5504">0</span></div>
+        <div class="l">RevPAR, computed from your uploads</div>
+      </div>
+      <div class="stat">
+        <div class="n"><span data-count="3">0</span></div>
+        <div class="l">rate changes to review each week</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<script>
+  import { demandColor, seasonal, countUp, reduce } from '../scripts/demo';
+
+  // Build the hero heatmap: 7 rows (days) x N cols (weeks).
+  const weeks = window.innerWidth < 860 ? 26 : 44;
+  const hm = document.getElementById('heatmap');
+  const cells: HTMLElement[] = [];
+  if (hm) {
+    for (let w = 0; w < weeks; w++) {
+      const col = document.createElement('div');
+      col.className = 'heat-col';
+      for (let d = 0; d < 7; d++) {
+        const day = w * 7 + d;
+        let v = seasonal(day);
+        if (d === 5 || d === 6) v = Math.min(0.99, v + 0.12); // weekend lift
+        const c = document.createElement('div');
+        c.className = 'cell';
+        c.style.background = demandColor(v);
+        col.appendChild(c);
+        cells.push(c);
+      }
+      hm.appendChild(col);
+    }
+  }
+
+  function paintHeatmap() {
+    if (reduce) { cells.forEach((c) => c.classList.add('on')); return; }
+    cells.forEach((c, i) => {
+      const col = Math.floor(i / 7);
+      setTimeout(() => c.classList.add('on'), col * 28 + (i % 7) * 10);
+    });
+  }
+
+  // Trigger paint + stat count-up when each enters view.
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((en) => {
+      if (!en.isIntersecting) return;
+      if (en.target.id === 'heatCard') paintHeatmap();
+      if (en.target.id === 'statStrip') {
+        en.target.querySelectorAll<HTMLElement>('[data-count]').forEach((el) => {
+          if (!el.dataset.done) { el.dataset.done = '1'; countUp(el); }
+        });
+      }
+      obs.unobserve(en.target);
+    });
+  }, { threshold: 0.2 });
+  const hc = document.getElementById('heatCard');
+  const ss = document.getElementById('statStrip');
+  if (hc) obs.observe(hc);
+  if (ss) obs.observe(ss);
+</script>

@@ -1,0 +1,86 @@
+---
+import { DEMO } from '../config';
+---
+
+<section class="block play" id="play">
+  <div class="wrap">
+    <div class="narrow center reveal">
+      <div class="kicker">Try it yourself</div>
+      <h2>Move the demand. Watch the price.</h2>
+      <p class="lead">
+        This is the pricing engine in miniature. Drag next weekend's expected
+        demand and see how the recommended rate corridor — and your RevPAR —
+        respond.
+      </p>
+    </div>
+
+    <div class="play-card reveal">
+      <div class="play-q">{DEMO.hotelName} · next Fri–Sat</div>
+      <div class="play-occ">Expected demand: <b><span id="occLabel">78</span>% occupancy</b></div>
+      <input type="range" id="occSlider" min="50" max="98" value="78" aria-label="Expected occupancy" />
+      <div class="play-out">
+        <div class="corridor-box">
+          <div class="lbl">Recommended rate corridor</div>
+          <div class="cbar">
+            <div class="cband" id="cband"></div>
+            <div class="cmark" id="cmark"></div>
+          </div>
+          <div class="cscale"><span>₹4,000</span><span>₹10,000</span></div>
+          <div class="corridor-vals">
+            <div class="cv"><div class="cvn" id="cLow">₹6,600</div><div class="cvl">Floor</div></div>
+            <div class="cv"><div class="cvn" id="cRec">₹7,050</div><div class="cvl">Target</div></div>
+            <div class="cv"><div class="cvn" id="cHigh">₹7,540</div><div class="cvl">Ceiling</div></div>
+          </div>
+        </div>
+        <div class="revpar-box">
+          <div class="rn">₹<span id="revparOut">5,499</span></div>
+          <div class="rl">Projected RevPAR</div>
+        </div>
+      </div>
+      <div class="play-foot">
+        Illustrative elasticity model. The live engine controls for season, day of
+        week, lead time and logged competitor rates.
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { PRICING } from '../config';
+
+  const slider = document.getElementById('occSlider') as HTMLInputElement | null;
+  const occLabel = document.getElementById('occLabel');
+  const cLow = document.getElementById('cLow');
+  const cRec = document.getElementById('cRec');
+  const cHigh = document.getElementById('cHigh');
+  const revparOut = document.getElementById('revparOut');
+  const cband = document.getElementById('cband');
+  const cmark = document.getElementById('cmark');
+
+  const { scaleMin, scaleMax, rateAtLowOcc, rateAtHighOcc, floorMult, ceilingMult } = PRICING;
+
+  const money = (n: number) => '₹' + (Math.round(n / 10) * 10).toLocaleString('en-IN');
+  const pctPos = (v: number) =>
+    Math.max(0, Math.min(100, ((v - scaleMin) / (scaleMax - scaleMin)) * 100));
+
+  function update() {
+    if (!slider) return;
+    const o = Number(slider.value); // 50..98
+    if (occLabel) occLabel.textContent = String(o);
+    const of = o / 100;
+    // Higher demand supports a higher rate (linear teaser between the two anchors).
+    const rec = rateAtLowOcc + ((of - 0.5) / 0.48) * (rateAtHighOcc - rateAtLowOcc);
+    const low = rec * floorMult;
+    const high = rec * ceilingMult;
+    if (cLow) cLow.textContent = money(low);
+    if (cRec) cRec.textContent = money(rec);
+    if (cHigh) cHigh.textContent = money(high);
+    if (revparOut) revparOut.textContent = (Math.round((rec * of) / 10) * 10).toLocaleString('en-IN');
+    const lp = pctPos(low), hp = pctPos(high), rp = pctPos(rec);
+    if (cband) { cband.style.left = lp + '%'; cband.style.width = (hp - lp) + '%'; }
+    if (cmark) cmark.style.left = rp + '%';
+  }
+
+  slider?.addEventListener('input', update);
+  update();
+</script>

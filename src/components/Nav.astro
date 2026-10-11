@@ -1,0 +1,54 @@
+---
+import { APP_LOGIN_URL, BRAND } from '../config';
+---
+
+<nav>
+  <div class="wrap nav-inner">
+    <div class="wordmark">{BRAND.pre}<span>{BRAND.accent}</span></div>
+    <div class="nav-links">
+      <div class="nav-menu">
+        <a href="#walk">Product</a>
+        <a href="#play">Try it</a>
+        <a href="#how">How it works</a>
+      </div>
+      <a href={APP_LOGIN_URL} class="btn btn-ghost">Log in</a>
+      <a href="#request" class="btn btn-primary">Request access</a>
+    </div>
+    <button
+      class="nav-toggle"
+      id="navToggle"
+      type="button"
+      aria-expanded="false"
+      aria-controls="navMobileMenu"
+      aria-label="Open menu"
+    >
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="nav-mobile-menu" id="navMobileMenu">
+    <a href="#walk">Product</a>
+    <a href="#play">Try it</a>
+    <a href="#how">How it works</a>
+  </div>
+</nav>
+
+<script>
+  const toggle = document.getElementById('navToggle') as HTMLButtonElement | null;
+  const menu = document.getElementById('navMobileMenu');
+
+  function closeMenu() {
+    menu?.classList.remove('open');
+    toggle?.setAttribute('aria-expanded', 'false');
+  }
+
+  toggle?.addEventListener('click', () => {
+    const isOpen = menu?.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+
+  menu?.querySelectorAll('a').forEach((a) => a.addEventListener('click', closeMenu));
+
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 860) closeMenu();
+  });
+</script>

@@ -1,0 +1,33 @@
+---
+import { APP_LOGIN_URL } from '../config';
+---
+
+<section class="final" id="request">
+  <div class="wrap">
+    <div class="kicker">Get started</div>
+    <h2>See it on your own numbers.</h2>
+    <p>HotelierOS is onboarded property by property. Tell us about your hotel and we'll set up your workspace.</p>
+    <form class="req-form reveal" id="reqForm">
+      <div class="req-row">
+        <input type="text" name="name" placeholder="Your name" required />
+        <input type="text" name="hotel" placeholder="Hotel name" required />
+      </div>
+      <input type="email" name="email" placeholder="Work email" required />
+      <button type="submit" class="btn btn-primary">Request access</button>
+    </form>
+    <div class="req-done" id="reqDone">Thanks — we'll be in touch to set up your workspace.</div>
+    <div class="or-login">Already onboarded? <a href={APP_LOGIN_URL}>Log in →</a></div>
+  </div>
+</section>
+
+<script>
+  // NOTE: this is a front-end-only stub. Wire the submit to your CRM / form
+  // endpoint (e.g. a Cloudflare Pages Function, Formspree, or your backend).
+  const form = document.getElementById('reqForm') as HTMLFormElement | null;
+  const done = document.getElementById('reqDone');
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    form.style.display = 'none';
+    if (done) done.style.display = 'block';
+  });
+</script>

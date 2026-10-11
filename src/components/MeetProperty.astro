@@ -1,0 +1,29 @@
+---
+import { DEMO } from '../config';
+---
+
+<section class="block meet">
+  <div class="wrap meet-inner">
+    <div class="meet-card reveal">
+      <div class="name">{DEMO.hotelName}</div>
+      <div class="loc">{DEMO.location} · <span class="badge">Sample property</span></div>
+      <div class="meet-facts">
+        <div class="fact"><span class="k">Rooms</span><span class="v">{DEMO.rooms}</span></div>
+        <div class="fact"><span class="k">Occupancy (30d)</span><span class="v">{DEMO.occupancyPct}%</span></div>
+        <div class="fact"><span class="k">ADR</span><span class="v">₹{DEMO.adr.toLocaleString('en-IN')}</span></div>
+        <div class="fact"><span class="k">RevPAR</span><span class="v">₹{DEMO.revpar.toLocaleString('en-IN')}</span></div>
+        <div class="fact"><span class="k">History uploaded</span><span class="v">{DEMO.historyYears} years</span></div>
+      </div>
+    </div>
+    <div class="reveal">
+      <div class="kicker">Follow one hotel</div>
+      <h2>Meet the Grand Cascade.</h2>
+      <p class="lead">
+        We'll use one sample property to walk through exactly what HotelierOS does
+        with a hotel's data. Everything you see next is computed the same way it
+        would be from your own PMS export — the numbers here are illustrative, the
+        machinery is real.
+      </p>
+    </div>
+  </div>
+</section>
