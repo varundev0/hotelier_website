@@ -4,8 +4,8 @@ The public landing page for **HotelierOS**. It is intentionally a **separate
 project from the app** (the React/FastAPI dashboard). This repo is static
 marketing content; the app lives on its own subdomain.
 
-- Marketing site → `hotelier.tattvalabs.io` (this repo)
-- App → `app.hotelier.tattvalabs.io` (existing repo)
+- Marketing site → `hotelieros.tattvalabs.io` (this repo)
+- App → `app.hotelieros.tattvalabs.io` (existing repo)
 
 The "Log in" and "Request access → already onboarded" buttons link across to
 the app's login page.
@@ -102,13 +102,13 @@ own "Demo Data" badge convention. Nothing that's still mocked in the product
 
 `tattvalabs.io` is already on Cloudflare DNS, so this is one step:
 
-1. Pages project → **Custom domains → Set up a custom domain** → add
-   `hotelier.tattvalabs.io`. Cloudflare creates the CNAME
-   (`hotelier` → `<project>.pages.dev`) and issues SSL automatically.
+1. Worker `hotelier-website` → **Domains → Add Domain** → add
+   `hotelieros.tattvalabs.io`. Cloudflare creates the DNS record (type
+   "Worker") and issues SSL automatically. Don't add a CNAME by hand.
 
 ### 3. Keep the app on its own subdomain
 
-The app owns `app.hotelier.tattvalabs.io` (its own Pages project or current
+The app owns `app.hotelieros.tattvalabs.io` (its own Pages project or current
 host). Nothing in this repo touches it — the cross-links in `src/config.ts`
 (`APP_LOGIN_URL`) just point at it. Update that constant if the login path
 changes.
@@ -116,9 +116,9 @@ changes.
 ### Result
 
 ```
-hotelier.tattvalabs.io       → this marketing site (Astro, Cloudflare Pages)
-app.hotelier.tattvalabs.io   → the HotelierOS app
+hotelieros.tattvalabs.io       → this marketing site (Astro, Cloudflare Workers)
+app.hotelieros.tattvalabs.io   → the HotelierOS app
 ```
 
-`site` in `astro.config.mjs` is set to `https://hotelier.tattvalabs.io` so
+`site` in `astro.config.mjs` is set to `https://hotelieros.tattvalabs.io` so
 canonical URLs are correct.
