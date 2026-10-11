@@ -5,7 +5,7 @@
 
 // Where the "Log in" / "Request access → already onboarded" buttons point.
 // This is the separate app subdomain (see README for the domain split).
-export const APP_LOGIN_URL = 'https://app.hotelieros.com/login';
+export const APP_LOGIN_URL = 'https://app.hotelier.tattvalabs.io/login';
 
 // Product wordmark shown in nav + footer (rendered as "Hotelier" + accented "OS").
 export const BRAND = { pre: 'Hotelier', accent: 'OS' } as const;

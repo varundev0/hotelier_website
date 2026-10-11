@@ -4,8 +4,8 @@ The public landing page for **HotelierOS**. It is intentionally a **separate
 project from the app** (the React/FastAPI dashboard). This repo is static
 marketing content; the app lives on its own subdomain.
 
-- Marketing site → `hotelieros.com` (this repo)
-- App → `app.hotelieros.com` (existing repo)
+- Marketing site → `hotelier.tattvalabs.io` (this repo)
+- App → `app.hotelier.tattvalabs.io` (existing repo)
 
 The "Log in" and "Request access → already onboarded" buttons link across to
 the app's login page.
@@ -98,29 +98,27 @@ own "Demo Data" badge convention. Nothing that's still mocked in the product
    - **Build output directory:** `dist`
 4. Deploy. You'll get a `*.pages.dev` preview URL to verify.
 
-### 2. Point the apex domain at it
+### 2. Point the subdomain at it
 
-1. Add `hotelieros.com` to Cloudflare (nameservers pointed to Cloudflare).
-2. Pages project → **Custom domains → Set up a domain** → add `hotelieros.com`.
-   Cloudflare writes the DNS record for you.
-3. Add `www.hotelieros.com` too, then create a **Redirect Rule**:
-   `www.hotelieros.com/*` → `https://hotelieros.com/$1` (301). Keeps one
-   canonical host.
+`tattvalabs.io` is already on Cloudflare DNS, so this is one step:
+
+1. Pages project → **Custom domains → Set up a custom domain** → add
+   `hotelier.tattvalabs.io`. Cloudflare creates the CNAME
+   (`hotelier` → `<project>.pages.dev`) and issues SSL automatically.
 
 ### 3. Keep the app on its own subdomain
 
-Your existing app deploy owns `app.hotelieros.com` (its own Pages project or
-current host). Nothing in this repo touches it — the cross-links in
-`src/config.ts` (`APP_LOGIN_URL`) just point at it. Update that constant to match
-the real login path.
+The app owns `app.hotelier.tattvalabs.io` (its own Pages project or current
+host). Nothing in this repo touches it — the cross-links in `src/config.ts`
+(`APP_LOGIN_URL`) just point at it. Update that constant if the login path
+changes.
 
 ### Result
 
 ```
-hotelieros.com        → this marketing site (Astro, Cloudflare Pages)
-www.hotelieros.com    → 301 → hotelieros.com
-app.hotelieros.com    → the HotelierOS app (unchanged)
+hotelier.tattvalabs.io       → this marketing site (Astro, Cloudflare Pages)
+app.hotelier.tattvalabs.io   → the HotelierOS app
 ```
 
-Update `site` in `astro.config.mjs` to your final apex domain so canonical URLs
-are correct.
+`site` in `astro.config.mjs` is set to `https://hotelier.tattvalabs.io` so
+canonical URLs are correct.
