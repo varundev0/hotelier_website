@@ -2,15 +2,15 @@
 import { APP_LOGIN_URL, WEB3FORMS_ACCESS_KEY } from '../config';
 ---
 
-<section class="sec" id="request">
+<section class="block" id="request">
   <div class="wrap">
-    <div class="g7 split sec-rule">
-      <div class="split-copy c1-3">
-        <p class="sec-label">Access</p>
+    <div class="split">
+      <div class="split-copy">
+        <p class="eyebrow">Get started</p>
         <h2>See it on your own numbers.</h2>
-        <p>HotelierOS is onboarded property by property. Tell us about your hotel and we'll set up your workspace.</p>
+        <p>Every hotel gets its own setup: rooms, rates and team mapped before your first night on HotelierOS. Tell us about your property and we'll take it from there.</p>
       </div>
-      <div class="c4-7 req-col">
+      <div class="req-col">
         <form class="req-form" id="reqForm" data-key={WEB3FORMS_ACCESS_KEY}>
           <!-- Honeypot: hidden from people, bots tick it, Web3Forms drops those submissions. -->
           <input type="checkbox" name="botcheck" class="req-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />

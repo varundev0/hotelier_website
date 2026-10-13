@@ -1,0 +1,362 @@
+---
+// The page's one continuous story: an evening at the sample hotel.
+// A pinned building (48 windows = 48 rooms) lights up as each chapter scrolls
+// past — every lit window is an occupied room. PMS moments (reservation, room
+// grid, housekeeping) and RMS moments (live numbers, on-the-books, rate) are one
+// loop, so they are one story with no section breaks.
+import { APP_LOGIN_URL, DEMO, PRICING, CORRIDOR_LABEL, STORY_LIT, inr } from '../config';
+
+// --- building geometry (viewBox 320 x 452) ---
+const FLOORS = 8, COLS = 6;
+// Deterministic shuffle so windows light in a natural, scattered order.
+let seed = 7;
+const rnd = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
+const order = Array.from({ length: FLOORS * COLS }, (_, i) => i).sort(() => rnd() - 0.5);
+const windows = Array.from({ length: FLOORS * COLS }, (_, i) => {
+  const r = Math.floor(i / COLS), c = i % COLS;
+  return { x: 52 + c * 38, y: 100 + r * 36, o: order.indexOf(i), room: (FLOORS - r) * 100 + c + 1 };
+});
+
+// --- room grid (tape chart): rooms x next 10 nights ---
+const tape = [
+  { room: 301, stays: [{ s: 0, n: 2, who: 'Kapoor', fresh: true }, { s: 3, n: 3, who: 'Rao' }] },
+  { room: 302, stays: [{ s: 0, n: 1, who: 'Corporate' }, { s: 1, n: 4, who: 'Iyer' }] },
+  { room: 303, stays: [{ s: 2, n: 2, who: 'Shah' }, { s: 6, n: 3, who: 'Menon' }] },
+  { room: 304, stays: [{ s: 0, n: 3, who: 'Corporate' }, { s: 5, n: 2, who: 'Das' }] },
+  { room: 305, stays: [{ s: 1, n: 2, who: 'Bose' }, { s: 4, n: 5, who: 'Nair' }] },
+  { room: 306, stays: [{ s: 0, n: 4, who: 'Iyer' }, { s: 7, n: 2, who: 'Khan' }] },
+];
+const nights = Array.from({ length: 10 }, (_, i) => i);
+const startLit = STORY_LIT.hero;
+const rateFor = (lit: number) => {
+  const occ = lit / DEMO.rooms;
+  return occ < 0.7 ? PRICING.floor : occ < 0.85 ? PRICING.target : PRICING.ceiling;
+};
+---
+
+<section class="wrap" id="story" aria-label="An evening at the sample hotel">
+  <div class="story">
+    <div class="story-copy">
+
+      <!-- Hero -->
+      <div class="chapter hero" data-lit={STORY_LIT.hero}>
+        <p class="hero-when"><b id="partOfDay">This evening</b> at {DEMO.hotelName}<sup class="fn"><a href="#notes" aria-label="Note 1">1</a></sup></p>
+        <h1>Every night has a right price. See yours.</h1>
+        <p class="hero-sub">
+          HotelierOS runs the property and prices it from one live system.
+          Reservations land, rooms and housekeeping follow, and the rate responds.
+        </p>
+        <div class="hero-cta">
+          <a href="#request" class="btn btn-primary btn-lg">Request access</a>
+          <a href={APP_LOGIN_URL} class="btn btn-ghost btn-lg">Log in</a>
+        </div>
+        <p class="hero-hint">Scroll to watch tonight fill up.</p>
+        <div class="hero-building" aria-hidden="true"></div>
+      </div>
+
+      <!-- mobile only: tonight's count stays in view while the story scrolls -->
+      <div class="story-mini" aria-hidden="true">
+        <span class="mini-dots" id="miniDots">{windows.map(() => <i></i>)}</span>
+        <span><b data-lit-count>{startLit}</b>/48 tonight</span>
+        <span class="r" data-rate>{inr(rateFor(startLit))}</span>
+      </div>
+
+      <!-- PMS: reservation -->
+      <div class="chapter" data-lit={STORY_LIT.reservation}>
+        <p class="ch-time" data-offset="0">7:00 pm</p>
+        <h3>A booking lands. Everything knows.</h3>
+        <p>The moment a reservation is made it's in HotelierOS: on the arrivals list, on the room grid, in tonight's occupancy. Nothing to export, nothing to re-key.</p>
+        <div class="panel anim">
+          <div class="panel-head"><b>Reservations</b><span class="live">Live</span></div>
+          <ul class="feed">
+            <li class="is-new"><span class="t" data-offset="0">7:00 pm</span><span><span class="who">A. Kapoor</span> · Deluxe King · 2 nights from tonight</span><span class="amt">{inr(PRICING.floor * 2)}</span></li>
+            <li><span class="t" data-offset="-12">6:48 pm</span><span><span class="who">S. Iyer</span> · Suite · 4 nights</span><span class="amt">₹39,600</span></li>
+            <li><span class="t" data-offset="-31">6:29 pm</span><span><span class="who">Corporate block</span> · 4 rooms · 1 night</span><span class="amt">₹26,400</span></li>
+          </ul>
+          <dl class="counts">
+            <div><dt>Arrivals today</dt><dd>9</dd></div>
+            <div><dt>Departures</dt><dd>7</dd></div>
+            <div><dt>In-house</dt><dd data-lit-count>{STORY_LIT.reservation}</dd></div>
+          </dl>
+        </div>
+      </div>
+
+      <!-- PMS: room grid -->
+      <div class="chapter" data-lit={STORY_LIT.grid}>
+        <p class="ch-time" data-offset="1">7:01 pm</p>
+        <h3>Every room, every night, on one grid.</h3>
+        <p>The new stay drops onto the room grid with everything already booked around it, so the front desk sees what's free before the guest finishes asking.</p>
+        <div class="panel anim">
+          <div class="panel-head"><b>Room grid</b><span>Floor 3 · next 10 nights</span></div>
+          <div class="tape" role="img" aria-label="Room grid for rooms 301 to 306 over the next ten nights; a new two-night booking for room 301 starts tonight.">
+            <span></span>
+            {nights.map((d) => <span class={`hd${d === 0 ? ' today' : ''}`} data-night={d}>{d === 0 ? 'T' : `+${d}`}</span>)}
+            {tape.map((t) => (
+              <>
+                <span class="rm">{t.room}</span>
+                <div class="lane">
+                  {t.stays.map((s) => (
+                    <span class={`bk${s.fresh ? ' fresh' : ''}`} style={`grid-column:${s.s + 1} / span ${s.n}`}>{s.who}</span>
+                  ))}
+                </div>
+              </>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <!-- PMS: housekeeping -->
+      <div class="chapter" data-lit={STORY_LIT.housekeeping}>
+        <p class="ch-time" data-offset="38">7:38 pm</p>
+        <h3>Rooms turn over without a phone call.</h3>
+        <p>Checkouts flag rooms for cleaning, housekeeping marks them clean and inspected, and they go straight back on sale.</p>
+        <div class="panel">
+          <div class="panel-head"><b>Housekeeping</b><span class="live">Live</span></div>
+          <div class="hk-sum">
+            <span class="chip st-dirty"><i></i>Dirty <b>6</b></span>
+            <span class="chip st-clean"><i></i>Clean <b>4</b></span>
+            <span class="chip st-insp"><i></i>Inspected <b>12</b></span>
+          </div>
+          <ul class="hk">
+            <li><span class="rm">214</span><span>Checked out at 11:02 am</span><span class="chip st-dirty"><i></i>Dirty</span></li>
+            <li><span class="rm">305</span><span>Cleaned, waiting for inspection</span><span class="chip st-clean"><i></i>Clean</span></li>
+            <li><span class="rm">118</span><span>Released to the front desk</span><span class="chip st-insp"><i></i>Inspected</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- RMS: live numbers -->
+      <div class="chapter" data-lit={STORY_LIT.numbers}>
+        <p class="ch-time" data-offset="60">8:00 pm</p>
+        <h3>The numbers move as the night does.</h3>
+        <p>Occupancy, ADR and RevPAR update with every booking, broken down by where the business came from.</p>
+        <div class="panel anim">
+          <div class="panel-head"><b>Performance</b><span class="live">Live</span></div>
+          <div class="kpis">
+            <div class="kpi"><div class="lab">Occupancy tonight</div><div class="val"><span data-lit-pct>{Math.round(STORY_LIT.numbers / 48 * 100)}</span>%</div><div class="d">▲ vs last week</div></div>
+            <div class="kpi"><div class="lab">ADR, month to date</div><div class="val">{inr(DEMO.adr)}</div><div class="d">▲ 2.8%</div></div>
+            <div class="kpi"><div class="lab">RevPAR, month to date</div><div class="val">{inr(DEMO.revpar)}</div><div class="d">▲ 7.1%</div></div>
+          </div>
+          <p class="sub-head">Revenue by source, month to date</p>
+          {DEMO.channels.map((c) => (
+            <div class="chan">
+              <span class="nm">{c.name}</span>
+              <div class="track"><div class="fill" style={`--w:${c.pct}%;background:${c.color}`}></div></div>
+              <span class="pc">{c.pct}%</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- RMS: on the books -->
+      <div class="chapter" data-lit={STORY_LIT.books}>
+        <p class="ch-time" data-offset="95">8:35 pm</p>
+        <h3>See what's coming, not just what happened.</h3>
+        <p>Actuals up to today, bookings on the books after it. A week pacing behind last year gets flagged while there's still time to act.</p>
+        <div class="panel anim">
+          <div class="panel-head">
+            <b>Occupancy by night</b>
+            <span class="otb-legend" aria-hidden="true">Empty
+              <span class="legend-scale"><i style="background:var(--occ-0)"></i><i style="background:var(--occ-1)"></i><i style="background:var(--occ-2)"></i><i style="background:var(--occ-3)"></i><i style="background:var(--occ-4)"></i></span>
+              Full</span>
+          </div>
+          <div class="otb">
+            <div class="otb-annot" aria-hidden="true">
+              <span class="otb-today-l" style="left:50%">Today</span>
+              <span class="otb-flag" id="otbFlag" hidden></span>
+            </div>
+            <div class="heatmap" id="otbHeat" role="img" aria-label="Nightly occupancy for the past 26 weeks and bookings on the books for the next 26 weeks, with Diwali week flagged for pacing behind last year."></div>
+            <div class="otb-months" id="otbMonths" aria-hidden="true"></div>
+            <div class="otb-key"><span>← Actuals</span><span>On the books →</span></div>
+          </div>
+          <div class="anomaly-tag" id="otbTag" hidden><i></i><span></span></div>
+        </div>
+      </div>
+
+      <!-- RMS: rate -->
+      <div class="chapter" data-lit={STORY_LIT.corridor}>
+        <p class="ch-time" data-offset="140">9:20 pm</p>
+        <h3>Demand climbs. The rate follows.</h3>
+        <p>As tonight fills, the recommended rate moves up within a corridor built from your own demand: a band to price inside, never a guess.<sup class="fn"><a href="#notes" aria-label="Note 2">2</a></sup></p>
+        <div class="panel anim">
+          <div class="panel-head"><b>Rate corridor</b><span>Tonight · Deluxe King</span></div>
+          <svg class="corr-svg" viewBox="0 0 320 130" preserveAspectRatio="none" role="img" aria-label={`Rate trend rising into a recommended corridor of ${CORRIDOR_LABEL}`}>
+            <rect x="0" y="40" width="320" height="42" fill="var(--signal-tint)"></rect>
+            <line x1="0" y1="40" x2="320" y2="40" stroke="var(--signal)" stroke-width="1" stroke-dasharray="4 3"></line>
+            <line x1="0" y1="82" x2="320" y2="82" stroke="var(--signal)" stroke-width="1" stroke-dasharray="4 3"></line>
+            <polyline class="corr-line" fill="none" stroke="var(--ink)" stroke-width="2" points="0,110 46,96 92,102 137,78 183,70 229,58 274,52 320,42" stroke-linecap="round" stroke-linejoin="round"></polyline>
+          </svg>
+          <div class="rec-rate"><span class="big">{inr(PRICING.ceiling)}</span><span>Recommended now · corridor {CORRIDOR_LABEL}</span></div>
+        </div>
+      </div>
+
+      <!-- Finale -->
+      <div class="chapter finale" data-lit={STORY_LIT.finale}>
+        <p class="ch-time">Tonight</p>
+        <h3>Every window <span class="lit-word">lit</span>. 48 of 48, at {inr(PRICING.ceiling)}.</h3>
+        <p>One system took the booking, gave it a room, turned the room around and priced the last one.</p>
+      </div>
+    </div>
+
+    <!-- Pinned building (desktop) -->
+    <div class="story-visual" aria-hidden="true">
+      <div class="building-wrap" id="buildingWrap">
+        <svg class="building" id="building" viewBox="0 0 320 452">
+          <line class="ground" x1="0" y1="440.5" x2="320" y2="440.5" stroke-width="1"></line>
+          <rect class="facade" x="32" y="48" width="256" height="392" rx="4" stroke-width="1"></rect>
+          <text class="sign" x="160" y="78" text-anchor="middle">THE GRAND CASCADE</text>
+          {windows.map((w) => (
+            <rect class={`win${w.o < startLit ? ' on' : ''}`} data-o={w.o} x={w.x} y={w.y} width="26" height="24" rx="2"></rect>
+          ))}
+          <rect class="door" x="144" y="398" width="32" height="42" rx="2"></rect>
+        </svg>
+        <dl class="tonight">
+          <div><dt>Rooms tonight</dt><dd><span data-lit-count>{startLit}</span> / 48</dd></div>
+          <div><dt>Occupancy</dt><dd><span data-lit-pct>{Math.round(startLit / 48 * 100)}</span>%</dd></div>
+          <div class="rate"><dt>Recommended rate</dt><dd><span data-rate>{inr(rateFor(startLit))}</span><small>moves with occupancy</small></dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { DEMO, PRICING, DIWALI_DATES, inr } from '../config';
+  import { demandColor, seasonal, onFirstView, reduce } from '../scripts/demo';
+
+  const ROOMS = DEMO.rooms;
+  const DAY = 864e5;
+  const now = new Date();
+
+  // ---- time of day: the story runs on the visitor's clock -------------------
+  const h = now.getHours();
+  const part = h >= 5 && h < 12 ? 'This morning' : h < 17 && h >= 12 ? 'This afternoon' : h >= 17 && h < 22 ? 'This evening' : 'Tonight';
+  const pod = document.getElementById('partOfDay');
+  if (pod) pod.textContent = part;
+  const fmt = (d: Date) => d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' });
+  document.querySelectorAll<HTMLElement>('[data-offset]').forEach((el) => {
+    el.textContent = fmt(new Date(now.getTime() + Number(el.dataset.offset) * 60e3));
+  });
+
+  // ---- the building -----------------------------------------------------------
+  // On phones the building sits under the hero instead of pinned beside the story.
+  const svg = document.getElementById('building');
+  const heroSlot = document.querySelector('.hero-building');
+  if (svg && heroSlot) {
+    const copy = svg.cloneNode(true) as Element;
+    copy.removeAttribute('id');
+    heroSlot.appendChild(copy);
+  }
+  const wins = Array.from(document.querySelectorAll<SVGRectElement>('.win'));
+  const dots = Array.from(document.querySelectorAll<HTMLElement>('#miniDots i'));
+  const order = wins.map((w) => Number(w.dataset.o));
+
+  const rateFor = (lit: number) => {
+    const occ = lit / ROOMS;
+    return occ < 0.7 ? PRICING.floor : occ < 0.85 ? PRICING.target : PRICING.ceiling;
+  };
+  let lit = -1;
+  function setLit(n: number) {
+    if (n === lit) return;
+    const prev = lit;
+    lit = n;
+    wins.forEach((w, i) => {
+      const on = order[i] < n;
+      if (on && !w.classList.contains('on') && prev >= 0 && !reduce) {
+        // newly booked rooms light one after another, not all at once
+        const delay = (order[i] - prev) * 70;
+        setTimeout(() => { w.classList.add('on', 'new'); setTimeout(() => w.classList.remove('new'), 950); }, Math.max(0, delay));
+      } else {
+        w.classList.toggle('on', on);
+      }
+    });
+    dots.forEach((d, i) => d.classList.toggle('on', i < n));
+    document.querySelectorAll('[data-lit-count]').forEach((el) => (el.textContent = String(n)));
+    document.querySelectorAll('[data-lit-pct]').forEach((el) => (el.textContent = String(Math.round((n / ROOMS) * 100))));
+    document.querySelectorAll('[data-rate]').forEach((el) => (el.textContent = inr(rateFor(n))));
+  }
+
+  const chapters = Array.from(document.querySelectorAll<HTMLElement>('.chapter[data-lit]'));
+  setLit(Number(chapters[0]?.dataset.lit ?? 0));
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => { if (en.isIntersecting) setLit(Number((en.target as HTMLElement).dataset.lit)); });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    chapters.forEach((c) => io.observe(c));
+  }
+
+  // ---- room grid: real dates in the header ------------------------------------
+  document.querySelectorAll<HTMLElement>('.tape .hd').forEach((el) => {
+    const d = Number(el.dataset.night);
+    el.textContent = String(new Date(now.getTime() + d * DAY).getDate());
+  });
+
+  // ---- on the books: 26 weeks of actuals, 26 weeks ahead ----------------------
+  const heat = document.getElementById('otbHeat');
+  const months = document.getElementById('otbMonths');
+  if (heat && months) {
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const monday = new Date(today.getTime() - ((today.getDay() + 6) % 7) * DAY);
+    const W = 52, PAST = 26;
+    const doy = (d: Date) => Math.floor((d.getTime() - new Date(d.getFullYear(), 0, 1).getTime()) / DAY);
+
+    // Diwali in the window? Flag its week.
+    let flagCol = -1, flagFuture = false;
+    for (const iso of DIWALI_DATES) {
+      const dd = new Date(iso + 'T00:00:00');
+      const col = Math.floor((dd.getTime() - monday.getTime()) / DAY / 7) + PAST;
+      if (col >= 0 && col < W) { flagCol = col; flagFuture = dd > today; break; }
+    }
+
+    let lastMonth = -1;
+    for (let c = 0; c < W; c++) {
+      const col = document.createElement('div');
+      col.className = 'heat-col';
+      col.style.setProperty('--i', String(c));
+      const colStart = new Date(monday.getTime() + (c - PAST) * 7 * DAY);
+      for (let d = 0; d < 7; d++) {
+        const date = new Date(colStart.getTime() + d * DAY);
+        let v = seasonal(doy(date));
+        if (d >= 4 && d <= 5) v = Math.min(0.99, v + 0.1); // Fri/Sat lift
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        if (date > today) {
+          // forward nights fill as the date approaches: pace, not a forecast
+          const ahead = (date.getTime() - today.getTime()) / DAY;
+          v *= Math.max(0.28, 1 - ahead / 200);
+          cell.classList.add('future');
+        }
+        if (c === flagCol) { v *= 0.82; cell.classList.add('flag'); }
+        cell.style.background = demandColor(v);
+        col.appendChild(cell);
+      }
+      heat.appendChild(col);
+      if (colStart.getMonth() !== lastMonth) {
+        lastMonth = colStart.getMonth();
+        const m = document.createElement('span');
+        m.style.left = `${(c / W) * 100}%`;
+        m.textContent = colStart.toLocaleString('en-IN', { month: 'short' });
+        months.appendChild(m);
+      }
+    }
+    const line = document.createElement('span');
+    line.className = 'today-line';
+    line.style.left = `calc(${(PAST / W) * 100}% - 1px)`;
+    heat.appendChild(line);
+
+    if (flagCol >= 0) {
+      const text = flagFuture ? 'Diwali week: pace −18% vs last year' : DEMO.anomaly;
+      const flag = document.getElementById('otbFlag');
+      const tag = document.getElementById('otbTag');
+      if (flag) {
+        flag.hidden = false;
+        flag.textContent = text;
+        if (flagCol > 38) { flag.style.left = `${((flagCol + 1) / W) * 100}%`; }
+        else { flag.style.left = `${(flagCol / W) * 100}%`; flag.style.transform = 'none'; flag.style.borderRight = 'none'; flag.style.borderLeft = '2px solid var(--watch)'; flag.style.padding = '0 0 6px 6px'; }
+      }
+      if (tag) { tag.hidden = false; tag.querySelector('span')!.textContent = text; }
+    }
+  }
+
+  onFirstView(Array.from(document.querySelectorAll('#story .anim')), 0.35);
+</script>

@@ -36,6 +36,15 @@ export const DEMO = {
   anomaly: 'Diwali week down 18% vs last year',
 } as const;
 
+// Diwali (Lakshmi Puja) dates the on-the-books heatmap can flag.
+// Source: dekhopanchang.com. Add the next year's date when one drops off.
+export const DIWALI_DATES = ['2026-11-08', '2027-10-29'] as const;
+
+// The story: how many of the 48 rooms are lit at each chapter. `rooms` above
+// must stay 48 — the building has 8 floors x 6 windows. The recommended rate
+// follows occupancy: floor under 70%, target under 85%, ceiling above.
+export const STORY_LIT = { hero: 26, reservation: 29, grid: 31, housekeeping: 33, numbers: 36, books: 38, corridor: 43, finale: 48 } as const;
+
 // Illustrative pricing model used by the walkthrough and the interactive slider.
 // The real product controls for season, day-of-week, lead time and logged
 // competitor rates — this is a teaser curve only.

@@ -1,24 +1,21 @@
 ---
-import { APP_LOGIN_URL, BRAND, DEMO } from '../config';
+import { DEMO } from '../config';
+import HotelierMark from './brand/HotelierMark.astro';
+import TattvaMark from './brand/TattvaMark.astro';
+const year = new Date().getFullYear();
 ---
 
 <section class="notes" id="notes" aria-label="Notes">
-  <div class="wrap"><div class="notes-inner">
+  <div class="wrap">
     <ol>
-      <li>{DEMO.hotelName} is a sample property. Every figure, chart and rate on this page is illustrative, computed the same way HotelierOS computes them from a real PMS export.</li>
+      <li>{DEMO.hotelName} is a sample property. Every booking, figure, chart and rate on this page is illustrative, computed the same way HotelierOS computes them from live reservations.</li>
       <li>The pricing shown is a teaser demand curve. The live model controls for season, day of week, lead time and logged competitor rates.</li>
     </ol>
-  </div></div>
+  </div>
 </section>
 <footer>
-  <div class="wrap"><div class="foot-inner">
-    <div class="wordmark">{BRAND.pre}<span>{BRAND.accent}</span></div>
-    <div class="foot-links">
-      <a href={APP_LOGIN_URL}>Log in</a>
-      <a href="#request">Request access</a>
-      <span class="foot-link-disabled" aria-disabled="true" title="Coming soon">Contact</span>
-      <span class="foot-link-disabled" aria-disabled="true" title="Coming soon">Privacy</span>
-    </div>
-    <div class="foot-copy">© 2026 HotelierOS</div>
-  </div></div>
+  <div class="wrap foot-inner">
+    <span class="foot-by"><HotelierMark /> HotelierOS by <a href="https://tattvalabs.io">Tattva Labs</a></span>
+    <span class="foot-copy">© {year} <TattvaMark /> <a href="https://tattvalabs.io">Tattva Labs</a></span>
+  </div>
 </footer>

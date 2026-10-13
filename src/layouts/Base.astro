@@ -8,8 +8,8 @@ interface Props {
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 const ogImage = new URL('/og.png', Astro.site).href;
 const {
-  title = 'HotelierOS — See your hotel clearly',
-  description = 'HotelierOS reads your booking history and shows demand by night, what each channel really costs, and the rate to charge.',
+  title = 'HotelierOS — Run the hotel. Price every night.',
+  description = 'HotelierOS is property management and revenue management in one system. Reservations land live, rooms and housekeeping follow, and the rate responds.',
 } = Astro.props;
 ---
 
@@ -23,7 +23,8 @@ const {
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=2" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
   <link rel="canonical" href={canonical} />
-  <meta name="theme-color" content="#F6F4EF" />
+  <meta name="theme-color" content="#08090B" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#F6F6F4" media="(prefers-color-scheme: light)" />
 
   <!-- Link previews (WhatsApp, LinkedIn, Slack, X) -->
   <meta property="og:type" content="website" />
@@ -39,8 +40,19 @@ const {
   <meta name="twitter:description" content={description} />
   <meta name="twitter:image" content={ogImage} />
 
-  <!-- Data animations (heatmap sweep, bar fill, line draw) only run when JS is on. -->
-  <script is:inline>document.documentElement.classList.add('js');</script>
+  <!-- Theme before first paint: a stored choice wins, else the system setting, else dark.
+       Data animations (windows, bars, lines) only run when JS is on. -->
+  <script is:inline>
+    (function () {
+      var d = document.documentElement, t = null;
+      d.classList.add('js');
+      try { t = localStorage.getItem('theme'); } catch (e) {}
+      if (t !== 'light' && t !== 'dark') {
+        t = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+      }
+      d.setAttribute('data-theme', t);
+    })();
+  </script>
   <title>{title}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

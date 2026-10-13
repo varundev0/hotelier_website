@@ -15,10 +15,11 @@ the app's login page.
 ## Stack
 
 - [Astro](https://astro.build) — fast, static-first, ships almost no JS
-- Vanilla TypeScript for the small interactive bits (heatmap, bar/line
-  reveals, pricing slider)
-- A 7-column Swiss grid and its own tokens in `src/styles/global.css`
-  (see the "HotelierOS Marketing Site — Design Language Spec" doc)
+- Vanilla TypeScript for the interactive bits (the lit building, live panels,
+  on-the-books heatmap, pricing slider)
+- Dark by default: follows the visitor's system setting, with a toggle that
+  remembers their choice. Tokens for both themes live at the top of
+  `src/styles/global.css`.
 
 No UI framework, no CSS framework — deliberately light so the page is quick to
 load and easy to reason about.
@@ -43,46 +44,54 @@ Requires Node 18.20+ / 20.3+ / 22+ (standard Astro requirement).
 
 ---
 
+## How the page works
+
+The page is one continuous story: an evening at a sample hotel. A building with
+48 windows (48 rooms — it is the HotelierOS logo, scaled up) stays pinned beside
+the copy. Each chapter that scrolls past lights more windows, and tonight's
+occupancy and recommended rate update with it:
+
+reservation lands → room grid → housekeeping → live numbers → on the books →
+rate moves → full house.
+
+Chapter timestamps run on the visitor's own clock ("This evening at…").
+
 ## Project structure
 
 ```
 src/
-  config.ts                 # ⭐ edit this: login URL, brand, demo numbers, pricing model
-  styles/global.css         # design tokens + all styles
-  scripts/demo.ts           # shared client helpers (demand ramp, seasonal curve, run-once reveal)
-  layouts/Base.astro        # <html> shell, fonts
+  config.ts                 # ⭐ edit this: login URL, brand, sample-hotel numbers,
+                            #    pricing model, Diwali dates, rooms lit per chapter
+  styles/global.css         # theme tokens (dark + light) + all styles
+  scripts/demo.ts           # shared client helpers (occupancy ramp, seasonal curve, run-once reveal)
+  layouts/Base.astro        # <html> shell, fonts, theme set before first paint
   components/
-    Nav.astro
-    Hero.astro              # headline + sample-property strip + 52-week demand heatmap
-    MeetProperty.astro      # unused (merged into Hero) — safe to delete
-    Walkthrough.astro       # 5 rows: upload → KPIs → channels → seasonality → corridor
-    PricingPlayground.astro # interactive demand → rate corridor slider
-    HowItWorks.astro        # unused (now the walkthrough's Day 0 row) — safe to delete
-    RequestAccess.astro     # request form → Web3Forms
-    Footer.astro            # numbered footnotes + footer
-  pages/index.astro         # composes the sections
+    brand/HotelierMark.astro  # the logo mark (same art as public/favicon.svg)
+    brand/TattvaMark.astro    # Tattva Labs mark (as on tattvalabs.io)
+    Nav.astro                 # logo, links, theme toggle
+    Story.astro               # hero + the pinned building + every product chapter
+    PricingPlayground.astro   # interactive rate → RevPAR slider
+    RequestAccess.astro       # request form → Web3Forms
+    Footer.astro              # notes + "HotelierOS by Tattva Labs" footer
+  pages/index.astro         # composes the page
+public/og.png               # link-preview image (1200×630)
 ```
 
 ## Where to edit things
 
-- **Login URL, wordmark, sample-hotel numbers, the pricing model** → `src/config.ts`.
-  Everything reads from here; you rarely need to touch component markup.
-- **Copy / headlines** → the relevant `.astro` component.
-- **Colours, spacing, typography** → `src/styles/global.css` (`:root` tokens at the top).
-- **The heatmap's seasonal shape / colour scale** → `src/scripts/demo.ts`.
+- **Login URL, wordmark, sample-hotel numbers, the pricing model, how full the
+  building is at each chapter** → `src/config.ts`.
+- **Copy / headlines** → the relevant `.astro` component (most of it is in `Story.astro`).
+- **Colours, spacing, typography** → `src/styles/global.css` (dark and light tokens at the top).
+- **Diwali flag on the heatmap** → add next year's date to `DIWALI_DATES` in `src/config.ts`.
 
-## Two things still stubbed (intentional)
+## Still illustrative (intentional)
 
-1. **Request Access form** (`RequestAccess.astro`) is front-end only — on submit
-   it just shows a thank-you. Wire it to a real destination: a
-   [Cloudflare Pages Function](https://developers.cloudflare.com/pages/functions/),
-   Formspree, or a `POST` to your backend.
-2. **Pricing slider** uses a simple illustrative elasticity curve (`PRICING` in
+1. **Pricing slider** uses a simple illustrative elasticity curve (`PRICING` in
    `config.ts`). If you want it to mirror your real PED output, replace the
    linear model with sampled points from the engine.
 
-All on-page numbers are labelled **"illustrative data"** — matching the app's
-own "Demo Data" badge convention. Nothing that's still mocked in the product
+Every number on the page belongs to a sample property, and footnote 1 says so. Nothing that's still mocked in the product
 (F&B/Spa targets, automatic competitor scraping, the Reports tab) is advertised.
 
 ---
