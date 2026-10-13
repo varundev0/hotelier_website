@@ -40,8 +40,7 @@ import HotelierMark from './brand/HotelierMark.astro';
 </nav>
 
 <script>
-  // Theme toggle: flips and remembers the choice. Without a stored choice the
-  // page keeps following the system setting, including live changes.
+  // Theme toggle: dark is the default; the toggle switches to light and remembers it.
   const root = document.documentElement;
   const tBtn = document.getElementById('themeToggle');
   const label = () => tBtn?.setAttribute('aria-label', root.dataset.theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
@@ -50,13 +49,6 @@ import HotelierMark from './brand/HotelierMark.astro';
     const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
     root.dataset.theme = next;
     try { localStorage.setItem('theme', next); } catch (e) {}
-    label();
-  });
-  window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e) => {
-    let stored = null;
-    try { stored = localStorage.getItem('theme'); } catch (err) {}
-    if (stored) return;
-    root.dataset.theme = e.matches ? 'light' : 'dark';
     label();
   });
 

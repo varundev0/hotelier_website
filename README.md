@@ -17,8 +17,8 @@ the app's login page.
 - [Astro](https://astro.build) — fast, static-first, ships almost no JS
 - Vanilla TypeScript for the interactive bits (the lit building, live panels,
   on-the-books heatmap, pricing slider)
-- Dark by default: follows the visitor's system setting, with a toggle that
-  remembers their choice. Tokens for both themes live at the top of
+- Dark by default, with a toggle to light mode that remembers the visitor's
+  choice. Tokens for both themes live at the top of
   `src/styles/global.css`.
 
 No UI framework, no CSS framework — deliberately light so the page is quick to
