@@ -15,9 +15,10 @@ the app's login page.
 ## Stack
 
 - [Astro](https://astro.build) — fast, static-first, ships almost no JS
-- Vanilla TypeScript for the small interactive bits (heatmap, scroll
-  walkthrough, pricing slider)
-- The app's Swiss Modernism design tokens, ported to `src/styles/global.css`
+- Vanilla TypeScript for the small interactive bits (heatmap, bar/line
+  reveals, pricing slider)
+- A 7-column Swiss grid and its own tokens in `src/styles/global.css`
+  (see the "HotelierOS Marketing Site — Design Language Spec" doc)
 
 No UI framework, no CSS framework — deliberately light so the page is quick to
 load and easy to reason about.
@@ -48,17 +49,17 @@ Requires Node 18.20+ / 20.3+ / 22+ (standard Astro requirement).
 src/
   config.ts                 # ⭐ edit this: login URL, brand, demo numbers, pricing model
   styles/global.css         # design tokens + all styles
-  scripts/demo.ts           # shared client helpers (colour scale, seasonal curve, count-up)
-  layouts/Base.astro        # <html> shell, fonts, generic scroll-reveal
+  scripts/demo.ts           # shared client helpers (demand ramp, seasonal curve, run-once reveal)
+  layouts/Base.astro        # <html> shell, fonts
   components/
     Nav.astro
-    Hero.astro              # animated demand heatmap + count-up stats
-    MeetProperty.astro      # the sample hotel that threads through the page
-    Walkthrough.astro       # sticky-scroll: KPIs → channels → seasonality → corridor
+    Hero.astro              # headline + sample-property strip + 52-week demand heatmap
+    MeetProperty.astro      # unused (merged into Hero) — safe to delete
+    Walkthrough.astro       # 5 rows: upload → KPIs → channels → seasonality → corridor
     PricingPlayground.astro # interactive demand → rate corridor slider
-    HowItWorks.astro
-    RequestAccess.astro     # front-end-only form stub (see below)
-    Footer.astro
+    HowItWorks.astro        # unused (now the walkthrough's Day 0 row) — safe to delete
+    RequestAccess.astro     # request form → Web3Forms
+    Footer.astro            # numbered footnotes + footer
   pages/index.astro         # composes the sections
 ```
 

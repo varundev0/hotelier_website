@@ -1,9 +1,17 @@
 ---
-import { APP_LOGIN_URL, BRAND } from '../config';
+import { APP_LOGIN_URL, BRAND, DEMO } from '../config';
 ---
 
+<section class="notes" id="notes" aria-label="Notes">
+  <div class="wrap"><div class="notes-inner">
+    <ol>
+      <li>{DEMO.hotelName} is a sample property. Every figure, chart and rate on this page is illustrative, computed the same way HotelierOS computes them from a real PMS export.</li>
+      <li>The pricing shown is a teaser demand curve. The live model controls for season, day of week, lead time and logged competitor rates.</li>
+    </ol>
+  </div></div>
+</section>
 <footer>
-  <div class="wrap foot-inner">
+  <div class="wrap"><div class="foot-inner">
     <div class="wordmark">{BRAND.pre}<span>{BRAND.accent}</span></div>
     <div class="foot-links">
       <a href={APP_LOGIN_URL}>Log in</a>
@@ -12,5 +20,5 @@ import { APP_LOGIN_URL, BRAND } from '../config';
       <span class="foot-link-disabled" aria-disabled="true" title="Coming soon">Privacy</span>
     </div>
     <div class="foot-copy">© 2026 HotelierOS</div>
-  </div>
+  </div></div>
 </footer>

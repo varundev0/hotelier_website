@@ -1,45 +1,60 @@
 ---
-import { DEMO } from '../config';
+import { DEMO, PRICING, CORRIDOR_LABEL, inr } from '../config';
 ---
 
-<section class="block play" id="play">
+<section class="sec" id="play">
   <div class="wrap">
-    <div class="narrow center reveal">
-      <div class="kicker">Try it yourself</div>
-      <h2>Move the demand. Watch the price.</h2>
-      <p class="lead">
-        This is the pricing engine in miniature. Drag next weekend's expected
-        demand and see how the recommended rate corridor — and your RevPAR —
-        respond.
-      </p>
-    </div>
-
-    <div class="play-card reveal">
-      <div class="play-q">{DEMO.hotelName} · next Fri–Sat</div>
-      <div class="play-occ">Expected demand: <b><span id="occLabel">78</span>% occupancy</b></div>
-      <input type="range" id="occSlider" min="50" max="98" value="78" aria-label="Expected occupancy" />
-      <div class="play-out">
-        <div class="corridor-box">
-          <div class="lbl">Recommended rate corridor</div>
-          <div class="cbar">
-            <div class="cband" id="cband"></div>
-            <div class="cmark" id="cmark"></div>
-          </div>
-          <div class="cscale"><span>₹4,000</span><span>₹10,000</span></div>
-          <div class="corridor-vals">
-            <div class="cv"><div class="cvn" id="cLow">₹6,600</div><div class="cvl">Floor</div></div>
-            <div class="cv"><div class="cvn" id="cRec">₹7,050</div><div class="cvl">Target</div></div>
-            <div class="cv"><div class="cvn" id="cHigh">₹7,540</div><div class="cvl">Ceiling</div></div>
-          </div>
-        </div>
-        <div class="revpar-box">
-          <div class="rn">₹<span id="revparOut">5,499</span></div>
-          <div class="rl">Projected RevPAR</div>
-        </div>
+    <div class="g7 split sec-rule">
+      <div class="split-copy c1-3">
+        <p class="sec-label">Try it</p>
+        <h2>Set the rate. Watch what it earns.</h2>
+        <p>
+          Price too low and the hotel fills but leaves money on the table. Price
+          too high and empty rooms cost more than the higher rate brings in. Drag
+          next weekend's rate and find where RevPAR peaks.
+        </p>
+        <dl class="corr-figs">
+          <div><dt>Floor</dt><dd>{inr(PRICING.floor)}</dd></div>
+          <div class="is-target"><dt>Target</dt><dd>{inr(PRICING.target)}</dd></div>
+          <div><dt>Ceiling</dt><dd>{inr(PRICING.ceiling)}</dd></div>
+        </dl>
       </div>
-      <div class="play-foot">
-        Illustrative elasticity model. The live engine controls for season, day of
-        week, lead time and logged competitor rates.
+
+      <div class="panel c4-7">
+        <div class="panel-head"><b>{DEMO.hotelName}</b><span>Next Fri–Sat · illustrative model<sup class="fn"><a href="#notes" aria-label="Note 2">2</a></sup></span></div>
+        <div class="play-rate"><span>Your rate</span><b id="rateLabel">{inr(DEMO.adr)}</b></div>
+        <input
+          type="range"
+          id="rateSlider"
+          min={PRICING.scaleMin}
+          max={PRICING.scaleMax}
+          step={PRICING.step}
+          value={DEMO.adr}
+          aria-label="Nightly rate for next Friday and Saturday"
+        />
+        <div class="cscale"><span>{inr(PRICING.scaleMin)}</span><span>{inr(PRICING.scaleMax)}</span></div>
+
+        <div class="play-out">
+          <div>
+            <div class="lbl">RevPAR at each rate · shaded band = recommended corridor</div>
+            <svg id="curve" viewBox="0 0 400 140" width="100%" role="img"
+                 aria-label={`RevPAR rises with rate, peaks inside the recommended corridor of ${CORRIDOR_LABEL}, then falls.`}>
+              <rect id="corrBand" y="0" height="120" fill="var(--signal-tint)"></rect>
+              <line x1="0" y1="120" x2="400" y2="120" stroke="var(--rule)" stroke-width="1"></line>
+              <path id="curvePath" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"></path>
+              <line id="rateLine" y1="0" y2="120" stroke="var(--ink-3)" stroke-width="1" stroke-dasharray="3 3"></line>
+              <circle id="rateDot" r="6" fill="var(--signal)" stroke="var(--surface)" stroke-width="2"></circle>
+              <text x="0" y="136" font-size="11" fill="var(--ink-3)">Lower rate</text>
+              <text x="400" y="136" font-size="11" fill="var(--ink-3)" text-anchor="end">Higher rate</text>
+            </svg>
+          </div>
+          <div class="readout">
+            <div class="rn">₹<span id="revparOut">{DEMO.revpar.toLocaleString('en-IN')}</span></div>
+            <div class="rl">Projected RevPAR</div>
+            <div class="ro">Occupancy <b id="occOut">{DEMO.occupancyPct}%</b></div>
+            <div class="verdict" id="verdict" aria-live="polite">Inside the corridor: close to the best this weekend can earn.</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -47,38 +62,52 @@ import { DEMO } from '../config';
 
 <script>
   import { PRICING } from '../config';
+  import { occAt } from '../scripts/demo';
 
-  const slider = document.getElementById('occSlider') as HTMLInputElement | null;
-  const occLabel = document.getElementById('occLabel');
-  const cLow = document.getElementById('cLow');
-  const cRec = document.getElementById('cRec');
-  const cHigh = document.getElementById('cHigh');
+  const { scaleMin, scaleMax, floor, ceiling, target } = PRICING;
+  const slider = document.getElementById('rateSlider') as HTMLInputElement | null;
+  const rateLabel = document.getElementById('rateLabel');
   const revparOut = document.getElementById('revparOut');
-  const cband = document.getElementById('cband');
-  const cmark = document.getElementById('cmark');
+  const occOut = document.getElementById('occOut');
+  const verdict = document.getElementById('verdict');
+  const path = document.getElementById('curvePath');
+  const band = document.getElementById('corrBand');
+  const rateLine = document.getElementById('rateLine');
+  const dot = document.getElementById('rateDot');
 
-  const { scaleMin, scaleMax, rateAtLowOcc, rateAtHighOcc, floorMult, ceilingMult } = PRICING;
-
+  const revpar = (p: number) => p * occAt(p, PRICING);
+  const best = revpar(target);
+  const W = 400, H = 120, TOP = 12;
+  const yMin = Math.min(revpar(scaleMin), revpar(scaleMax)) * 0.9;
+  const x = (p: number) => ((p - scaleMin) / (scaleMax - scaleMin)) * W;
+  const y = (r: number) => H - ((r - yMin) / (best - yMin)) * (H - TOP);
   const money = (n: number) => '₹' + (Math.round(n / 10) * 10).toLocaleString('en-IN');
-  const pctPos = (v: number) =>
-    Math.max(0, Math.min(100, ((v - scaleMin) / (scaleMax - scaleMin)) * 100));
+
+  // Draw the curve and the corridor band once.
+  let d = '';
+  for (let p = scaleMin; p <= scaleMax; p += 50) d += `${d ? 'L' : 'M'}${x(p).toFixed(1)},${y(revpar(p)).toFixed(1)}`;
+  path?.setAttribute('d', d);
+  band?.setAttribute('x', String(x(floor)));
+  band?.setAttribute('width', String(x(ceiling) - x(floor)));
 
   function update() {
     if (!slider) return;
-    const o = Number(slider.value); // 50..98
-    if (occLabel) occLabel.textContent = String(o);
-    const of = o / 100;
-    // Higher demand supports a higher rate (linear teaser between the two anchors).
-    const rec = rateAtLowOcc + ((of - 0.5) / 0.48) * (rateAtHighOcc - rateAtLowOcc);
-    const low = rec * floorMult;
-    const high = rec * ceilingMult;
-    if (cLow) cLow.textContent = money(low);
-    if (cRec) cRec.textContent = money(rec);
-    if (cHigh) cHigh.textContent = money(high);
-    if (revparOut) revparOut.textContent = (Math.round((rec * of) / 10) * 10).toLocaleString('en-IN');
-    const lp = pctPos(low), hp = pctPos(high), rp = pctPos(rec);
-    if (cband) { cband.style.left = lp + '%'; cband.style.width = (hp - lp) + '%'; }
-    if (cmark) cmark.style.left = rp + '%';
+    const p = Number(slider.value);
+    const occ = occAt(p, PRICING);
+    const r = p * occ;
+    if (rateLabel) rateLabel.textContent = money(p);
+    if (revparOut) revparOut.textContent = Math.round(r).toLocaleString('en-IN');
+    if (occOut) occOut.textContent = (occ * 100).toFixed(1) + '%';
+    rateLine?.setAttribute('x1', String(x(p)));
+    rateLine?.setAttribute('x2', String(x(p)));
+    dot?.setAttribute('cx', String(x(p)));
+    dot?.setAttribute('cy', String(y(r)));
+    const gap = Math.max(0, best - r);
+    if (verdict) {
+      if (p < floor) verdict.textContent = `Too cheap: rooms fill, but you leave about ${money(gap)} per available room on the table.`;
+      else if (p > ceiling) verdict.textContent = `Too expensive: empty rooms cost you about ${money(gap)} per available room.`;
+      else verdict.textContent = 'Inside the corridor: close to the best this weekend can earn.';
+    }
   }
 
   slider?.addEventListener('input', update);

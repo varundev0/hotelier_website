@@ -1,168 +1,127 @@
 ---
-import { DEMO } from '../config';
+import { DEMO, CORRIDOR_LABEL, inr } from '../config';
+const months = ['J','F','M','A','M','J','J','A','S','O','N','D'];
+const corridorPts = '0,110 46,96 92,102 137,78 183,70 229,58 274,66 320,52';
 ---
 
-<section class="walk" id="walk">
+<section class="sec" id="walk">
   <div class="wrap">
-    <div class="step-dots" id="stepDots" role="tablist" aria-label="Walkthrough progress">
-      <button class="dot active" type="button" data-step="0" role="tab" aria-selected="true" aria-label="Step 1 of 4: The numbers"></button>
-      <button class="dot" type="button" data-step="1" role="tab" aria-selected="false" aria-label="Step 2 of 4: Your channels"></button>
-      <button class="dot" type="button" data-step="2" role="tab" aria-selected="false" aria-label="Step 3 of 4: Your seasons"></button>
-      <button class="dot" type="button" data-step="3" role="tab" aria-selected="false" aria-label="Step 4 of 4: Your price"></button>
+    <div class="g7 sec-head sec-rule">
+      <p class="sec-label c1">Walkthrough</p>
+      <h2 class="c2-7">What HotelierOS reads from one export.</h2>
     </div>
-    <div class="walk-grid">
-      <!-- Pinned visual -->
-      <div class="walk-visual">
-        <div class="stage">
-          <div class="stage-head">
-            <div class="t">{DEMO.hotelName} <small>Performance</small></div>
-            <span class="badge-live">Illustrative data</span>
-          </div>
 
-          <!-- layer 1: KPIs -->
-          <div class="layer" data-layer="0">
-            <div class="kpis">
-              <div class="kpi"><div class="lab">Occupancy</div><div class="val"><span class="cu" data-count="78.4" data-suffix="%" data-dec="1">0</span></div><div class="d">▲ 4.2%</div></div>
-              <div class="kpi"><div class="lab">ADR</div><div class="val">₹<span class="cu" data-count="7020">0</span></div><div class="d">▲ 2.8%</div></div>
-              <div class="kpi"><div class="lab">RevPAR</div><div class="val">₹<span class="cu" data-count="5504">0</span></div><div class="d">▲ 7.1%</div></div>
-            </div>
-            <p class="kpi-note">Occupancy, ADR and RevPAR computed automatically from a single CSV upload — no spreadsheet to maintain.</p>
-          </div>
-
-          <!-- layer 2: channels -->
-          <div class="layer" data-layer="1">
-            {DEMO.channels.map((c) => (
-              <div class="chan">
-                <div class="chan-top"><span class="nm">{c.name}</span><span class="pc">{c.pct}%</span></div>
-                <div class="track"><div class="fill" style={`--w:${c.pct}%;background:${c.color}`}></div></div>
-              </div>
-            ))}
-            <p class="kpi-note">Booking.com, Expedia, MakeMyTrip and the rest roll up into one commission-weighted OTA line — so you see the real cost of every channel.</p>
-          </div>
-
-          <!-- layer 3: seasonality -->
-          <div class="layer" data-layer="2">
-            <div class="mini-heat" id="miniHeat"></div>
-            <div class="anomaly-tag"><span class="pulse"></span> {DEMO.anomaly}</div>
-            <p class="kpi-note">A rolling multi-year heatmap surfaces your peaks and troughs and flags year-over-year drops before they cost you a season.</p>
-          </div>
-
-          <!-- layer 4: corridor -->
-          <div class="layer" data-layer="3">
-            <svg viewBox="0 0 320 150" width="100%" height="150" style="display:block">
-              <rect x="0" y="46" width="320" height="42" fill="var(--accent-blue-tint)"></rect>
-              <line x1="0" y1="46" x2="320" y2="46" stroke="var(--accent-blue)" stroke-width="1.5" stroke-dasharray="4 3"></line>
-              <line x1="0" y1="88" x2="320" y2="88" stroke="var(--accent-blue)" stroke-width="1.5" stroke-dasharray="4 3"></line>
-              <polyline id="cline" fill="none" stroke="var(--accent-blue)" stroke-width="2.5" points="" stroke-linecap="round" stroke-linejoin="round"></polyline>
-            </svg>
-            <div class="rec-rate"><span class="big">{DEMO.corridorLabel}</span></div>
-            <div class="corridor-note">Recommended rate corridor for this weekend · high season · Fri–Sat</div>
-            <p class="kpi-note">A price-elasticity model turns your demand into a defensible rate band per season and day of week — a corridor with confidence, not a false-precision number.</p>
-          </div>
+    <ol class="rows">
+      <!-- Day 0: onboarding + upload (was How it works) -->
+      <li class="row g7">
+        <p class="row-mark c1">Day 0</p>
+        <div class="row-copy c2-3">
+          <h3>We set up your workspace. You upload your history.</h3>
+          <p>Your property is mapped before you log in. Then drop in a PMS or booking export, with nothing to configure.</p>
         </div>
-      </div>
+        <div class="panel c4-7">
+          <div class="panel-head"><b>Upload</b><span>{DEMO.hotelName}</span></div>
+          <div class="upload-file">grand-cascade_bookings.csv <span>{DEMO.historyYears} years of bookings</span></div>
+          <ul class="upload-steps">
+            <li>Mapped to {DEMO.rooms} rooms</li>
+            <li>Channels separated: OTA, direct, corporate, travel agent</li>
+            <li>KPIs, channel mix and seasonality computed</li>
+          </ul>
+        </div>
+      </li>
 
-      <!-- Scrolling steps -->
-      <div class="walk-steps">
-        <div class="walk-step" data-step="0">
-          <div class="num">01 — THE NUMBERS</div>
+      <!-- Day 1: the numbers -->
+      <li class="row g7">
+        <p class="row-mark c1">Day 1</p>
+        <div class="row-copy c2-3">
           <h3>The metrics that matter, without the spreadsheet.</h3>
-          <p>Upload your booking history and the KPIs a revenue manager lives by appear instantly — and refresh with every new export. No formulas, no reconciling tabs.</p>
+          <p>Occupancy, ADR and RevPAR compute from a single upload and refresh with every new export.</p>
         </div>
-        <div class="walk-step" data-step="1">
-          <div class="num">02 — YOUR CHANNELS</div>
+        <div class="panel c4-7">
+          <div class="panel-head"><b>Performance</b><span>Last 30 days vs prior 30</span></div>
+          <div class="kpis">
+            <div class="kpi"><div class="lab">Occupancy</div><div class="val">{DEMO.occupancyPct}%</div><div class="d">▲ 4.2%</div></div>
+            <div class="kpi"><div class="lab">ADR</div><div class="val">{inr(DEMO.adr)}</div><div class="d">▲ 2.8%</div></div>
+            <div class="kpi"><div class="lab">RevPAR</div><div class="val">{inr(DEMO.revpar)}</div><div class="d">▲ 7.1%</div></div>
+          </div>
+        </div>
+      </li>
+
+      <!-- Day 1: channels -->
+      <li class="row g7">
+        <p class="row-mark c1">Day 1</p>
+        <div class="row-copy c2-3">
           <h3>Know what each channel really costs you.</h3>
-          <p>Direct, corporate and travel-agent business stay distinct, while every OTA collapses into one commission-weighted line — so the true economics of your mix stop hiding in extranets.</p>
+          <p>Direct, corporate and travel-agent business stay distinct. Booking.com, Expedia, MakeMyTrip and the rest roll up into one commission-weighted OTA line.</p>
         </div>
-        <div class="walk-step" data-step="2">
-          <div class="num">03 — YOUR SEASONS</div>
+        <div class="panel c4-7 anim">
+          <div class="panel-head"><b>Revenue by channel</b><span>Share of room revenue</span></div>
+          {DEMO.channels.map((c) => (
+            <div class="chan">
+              <span class="nm">{c.name}</span>
+              <div class="track"><div class="fill" style={`--w:${c.pct}%;background:${c.color}`}></div></div>
+              <span class="pc">{c.pct}%</span>
+            </div>
+          ))}
+        </div>
+      </li>
+
+      <!-- Day 1: seasons -->
+      <li class="row g7">
+        <p class="row-mark c1">Day 1</p>
+        <div class="row-copy c2-3">
           <h3>See the demand patterns you've been guessing at.</h3>
-          <p>Years of bookings become one readable heatmap. Peaks, shoulders and quiet weeks are obvious at a glance, and a soft spot against last year gets flagged automatically.</p>
+          <p>Years of bookings become one heatmap. A soft week against last year gets flagged automatically.</p>
         </div>
-        <div class="walk-step" data-step="3">
-          <div class="num">04 — YOUR PRICE</div>
+        <div class="panel c4-7">
+          <div class="panel-head"><b>Seasonality</b><span>Rolling {DEMO.historyYears}-year view</span></div>
+          <div class="mini-heat" id="miniHeat" aria-hidden="true"></div>
+          <div class="mini-months" aria-hidden="true">{months.map((m) => <span>{m}</span>)}</div>
+          <div class="anomaly-tag"><i></i> {DEMO.anomaly}</div>
+        </div>
+      </li>
+
+      <!-- Week 1: the price -->
+      <li class="row g7">
+        <p class="row-mark c1">Week 1</p>
+        <div class="row-copy c2-3">
           <h3>The rate your own data supports.</h3>
-          <p>HotelierOS models how your demand responds to price and hands you a rate corridor for each season and day of week — a confident band to price inside, not a number to argue with.</p>
+          <p>A price-elasticity model gives you a rate corridor for each season and day of week: a band to price inside, not a number to argue with.<sup class="fn"><a href="#notes" aria-label="Note 2">2</a></sup></p>
         </div>
-      </div>
-    </div>
+        <div class="panel c4-7 anim">
+          <div class="panel-head"><b>Rate corridor</b><span>This weekend · high season · Fri–Sat</span></div>
+          <svg class="corr-svg" viewBox="0 0 320 130" preserveAspectRatio="none" role="img" aria-label={`Rate trend rising into a recommended corridor of ${CORRIDOR_LABEL}`}>
+            <rect x="0" y="40" width="320" height="42" fill="var(--signal-tint)"></rect>
+            <line x1="0" y1="40" x2="320" y2="40" stroke="var(--signal)" stroke-width="1" stroke-dasharray="4 3"></line>
+            <line x1="0" y1="82" x2="320" y2="82" stroke="var(--signal)" stroke-width="1" stroke-dasharray="4 3"></line>
+            <polyline class="corr-line" fill="none" stroke="var(--ink)" stroke-width="2" points={corridorPts} stroke-linecap="round" stroke-linejoin="round"></polyline>
+          </svg>
+          <div class="rec-rate"><span class="big">{CORRIDOR_LABEL}</span><span>Recommended corridor</span></div>
+        </div>
+      </li>
+    </ol>
   </div>
 </section>
 
 <script>
-  import { demandColor, seasonal, countUp, reduce } from '../scripts/demo';
+  import { demandColor, seasonal, onFirstView } from '../scripts/demo';
 
-  // Mini heatmap inside the seasonality beat (12 cols x 6 rows).
+  // Mini seasonality heatmap: 12 months x 6 samples; October carries the flag.
   const mh = document.getElementById('miniHeat');
   if (mh) {
     for (let c = 0; c < 12; c++) {
       const col = document.createElement('div');
       col.className = 'mini-col';
       for (let r = 0; r < 6; r++) {
-        const day = c * 30 + r * 5;
         const cell = document.createElement('div');
         cell.className = 'mini-cell';
-        cell.style.background = demandColor(seasonal(day));
-        if (c === 9 && r < 2) cell.style.background = '#fcd9a4'; // anomaly highlight
+        cell.style.background = (c === 9 && r < 2) ? 'var(--watch)' : demandColor(seasonal(c * 30 + r * 5));
         col.appendChild(cell);
       }
       mh.appendChild(col);
     }
   }
 
-  // Sticky beats: activate one layer as its step crosses the viewport centre.
-  const layers = document.querySelectorAll<HTMLElement>('.stage .layer');
-  let kpiCounted = false;
-  let corridorDrawn = false;
-
-  function drawCorridor() {
-    if (corridorDrawn) return;
-    corridorDrawn = true;
-    const line = document.getElementById('cline');
-    if (!line) return;
-    const pts = [[0,110],[46,96],[92,102],[137,78],[183,70],[229,58],[274,66],[320,52]];
-    if (reduce) {
-      line.setAttribute('points', pts.map((p) => p.join(',')).join(' '));
-      return;
-    }
-    let i = 0;
-    (function add() {
-      if (i > pts.length) return;
-      line.setAttribute('points', pts.slice(0, i).map((p) => p.join(',')).join(' '));
-      i++;
-      setTimeout(add, 90);
-    })();
-  }
-
-  // Step progress dots: mirror the active layer and let visitors jump to a step.
-  const dots = document.querySelectorAll<HTMLButtonElement>('#stepDots .dot');
-
-  function setLayer(idx: number) {
-    layers.forEach((l) => l.classList.toggle('active', Number(l.getAttribute('data-layer')) === idx));
-    dots.forEach((d) => {
-      const isActive = Number(d.getAttribute('data-step')) === idx;
-      d.classList.toggle('active', isActive);
-      d.setAttribute('aria-selected', String(isActive));
-    });
-    if (idx === 0 && !kpiCounted) {
-      kpiCounted = true;
-      document.querySelectorAll<HTMLElement>('.stage .cu').forEach(countUp);
-    }
-    if (idx === 3) drawCorridor();
-  }
-  setLayer(0);
-
-  const stepObs = new IntersectionObserver((entries) => {
-    entries.forEach((en) => {
-      if (en.isIntersecting) setLayer(Number(en.target.getAttribute('data-step')));
-    });
-  }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 });
-  document.querySelectorAll('.walk-step').forEach((s) => stepObs.observe(s));
-
-  dots.forEach((d) => {
-    d.addEventListener('click', () => {
-      const target = document.querySelector(`.walk-step[data-step="${d.getAttribute('data-step')}"]`);
-      target?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
-    });
-  });
+  // Bars fill and the corridor line draws once, when each panel enters view.
+  onFirstView(Array.from(document.querySelectorAll('#walk .anim')), 0.4);
 </script>

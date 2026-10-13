@@ -2,24 +2,28 @@
 import { APP_LOGIN_URL, WEB3FORMS_ACCESS_KEY } from '../config';
 ---
 
-<section class="final" id="request">
+<section class="sec" id="request">
   <div class="wrap">
-    <div class="kicker">Get started</div>
-    <h2>See it on your own numbers.</h2>
-    <p>HotelierOS is onboarded property by property. Tell us about your hotel and we'll set up your workspace.</p>
-    <form class="req-form reveal" id="reqForm" data-key={WEB3FORMS_ACCESS_KEY}>
-      <!-- Honeypot: hidden from people, bots tick it, Web3Forms drops those submissions. -->
-      <input type="checkbox" name="botcheck" class="req-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
-      <div class="req-row">
-        <input type="text" name="name" placeholder="Your name" required />
-        <input type="text" name="hotel" placeholder="Hotel name" required />
+    <div class="g7 split sec-rule">
+      <div class="split-copy c1-3">
+        <p class="sec-label">Access</p>
+        <h2>See it on your own numbers.</h2>
+        <p>HotelierOS is onboarded property by property. Tell us about your hotel and we'll set up your workspace.</p>
       </div>
-      <input type="email" name="email" placeholder="Work email" required />
-      <button type="submit" class="btn btn-primary">Request access</button>
-      <div class="req-error" id="reqError" role="alert"></div>
-    </form>
-    <div class="req-done" id="reqDone">Thanks — we'll be in touch to set up your workspace.</div>
-    <div class="or-login">Already onboarded? <a href={APP_LOGIN_URL}>Log in →</a></div>
+      <div class="c4-7 req-col">
+        <form class="req-form" id="reqForm" data-key={WEB3FORMS_ACCESS_KEY}>
+          <!-- Honeypot: hidden from people, bots tick it, Web3Forms drops those submissions. -->
+          <input type="checkbox" name="botcheck" class="req-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <input type="text" name="name" placeholder="Your name" aria-label="Your name" autocomplete="name" required />
+          <input type="text" name="hotel" placeholder="Hotel name" aria-label="Hotel name" autocomplete="organization" required />
+          <input type="email" name="email" placeholder="Work email" aria-label="Work email" autocomplete="email" required />
+          <button type="submit" class="btn btn-primary">Request access</button>
+          <div class="req-error" id="reqError" role="alert"></div>
+        </form>
+        <div class="req-done" id="reqDone">Thanks. We'll be in touch to set up your workspace.</div>
+        <p class="or-login">Already onboarded? <a href={APP_LOGIN_URL}>Log in</a></p>
+      </div>
+    </div>
   </div>
 </section>
 

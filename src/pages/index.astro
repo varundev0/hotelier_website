@@ -2,21 +2,18 @@
 import Base from '../layouts/Base.astro';
 import Nav from '../components/Nav.astro';
 import Hero from '../components/Hero.astro';
-import MeetProperty from '../components/MeetProperty.astro';
 import Walkthrough from '../components/Walkthrough.astro';
 import PricingPlayground from '../components/PricingPlayground.astro';
-import HowItWorks from '../components/HowItWorks.astro';
 import RequestAccess from '../components/RequestAccess.astro';
 import Footer from '../components/Footer.astro';
+// MeetProperty is now the hero's property strip; HowItWorks is the walkthrough's Day 0 row.
 ---
 
 <Base>
   <Nav />
   <Hero />
-  <MeetProperty />
   <Walkthrough />
   <PricingPlayground />
-  <HowItWorks />
   <RequestAccess />
   <Footer />
 </Base>
